@@ -43,7 +43,10 @@ $$
 $$
 I will now give the main results related to the DPPM loss function, following the calculations in [Luo (2022)](https://arxiv.org/pdf/2208.11970.pdf). Expanding and using the Markov property $q(x^{(t)} | x^{(t-1)}) = q(x^{(t)} | x^{(t-1)}, x^{(0)})$ yields the loss:
 $$
-L\_{VLB} := \mathbb{E}\_{q(x^{(1)} | x^{(0)})} \left[ \text{log } p\_{\theta}(x^{(0)} | x^{(1)}) \right] - \sum_{t = 2}^T \mathbb{E}\_{q(x^{(t)} | q^{(0)})} \left[ D\_{KL}(q(x^{(t-1)} | x^{(t)}, x^{(0)}) || p\_{\theta}(x^{(t-1)} | x^{(t)})) \right]
+\begin{aligned}
+L\_{VLB} := \text{ } &\mathbb{E}\_{q(x^{(1)} | x^{(0)})} \left[ \text{log } p\_{\theta}(x^{(0)} | x^{(1)}) \right] \cr
+&- \sum_{t = 2}^T \mathbb{E}\_{q(x^{(t)} | q^{(0)})} \left[ D\_{KL}(q(x^{(t-1)} | x^{(t)}, x^{(0)}) || p\_{\theta}(x^{(t-1)} | x^{(t)})) \right]
+\end{aligned}
 $$
 The individual terms in the summation are referred to as $L_t$ in the literature and in the rest of this post.
 Conditioning the inverted diffusion kernel on $x^{(0)}$ surprisingly gives it the tractable form
