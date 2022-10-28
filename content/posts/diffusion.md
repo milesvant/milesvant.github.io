@@ -3,29 +3,16 @@ title: "An Introduction to Diffusion Models"
 date: 2022-10-27T16:26:37-07:00
 draft: false
 math: true
+toc: true
 ---
 
-## Table of Contents
-* [Introduction](#introduction)
-* [Data Generation Process](#data-generation-process)
-* [Loss Function](#loss-function)
-* [Improvements](#improvements)
-    * [Learning the Variance](#learning-the-variance)
-    * [Noise Schedule](#noise-schedule)
-    * [Strided Ancestral Sampling](#strided-ancestral-sampling)
-* [Conditioned Diffusion Models](#conditioned-diffusion-models)
-    * [Classifier Guidance](#classifier-guidance)
-    * [Classifier-Free Guidance](#classifier-free-guidance)
-    * [Comparing Classifier and Classifier-Free Guidance](#comparing-classifier-and-classifier-free-guidance)
-* [References](#references)
-
-# Introduction
+## Introduction
 
 *Denoising Diffusion Probabilisitc Models* ("DDPMs" or just "Diffusion models") have garnered significant interest as of late due to their use in the recent slate of amazing text-to-image models such as DALL·E 2 and Stable Diffusion. In this post I will explain the basic mechanisms and math behind how these models work.
 
 DDPMs ([Sohl-Dickstein et al., 2015](https://arxiv.org/pdf/1503.03585.pdf)) are probabilistic generative models, meaning that they aim to learn an approximation for a target data distribution $q(x^{(0)})$. This can be done for a number of reasons, for example to draw new samples from that distribution (new images similar to training images, new text similar to training corpus), or to learn a latent variable representation of the data in an unsupervised fashion. Flexible probabilistic models meant to model a wide range of distributions are frequently intractable due to issues such as computing the *partition function* $\(\int \tilde{p}(x) dx\)$ for an unnormalized probability distribution $\tilde{p}(x)$. A common approach to circumvent these issues is to instead learn a data generation process and follow this process to draw new samples. This is the approach taken by DDPMs.
 
-# Data Generation Process
+## Data Generation Process
 
 DDPMs model the data generation process as the inverse of a *forward diffusion process*, which is a Markov chain that converts the initial data distribution $q(x^{(0)})$ into a tractable prior $\pi(y)$ via repeated application of a *diffusion kernel* $$q(x^{(t)} | x^{(t-1)}) = T_t(x^{(t)} | x^{(t-1)}, \beta_t)$$
 
@@ -48,7 +35,7 @@ Note that for suitably chosen diffusion parameters $\beta_t$, as the Markov chai
 
 Based on this forward process, the data generation process is conceptually straightforward. We run the Markov chain in reverse, starting with a prior sample $x^{(T)} \sim \pi(x^{(T)})$, then repeatedly drawing samples from the inverted diffusion kernels $q(x^{(t-1)} | x^{(t)})$ for $t = T ... 1$ until reaching a final sample $x^{(0)}$. Of course, the exact inverted kernels $q(x^{(t-1)} | x^{(t)})$ is unavailable to us, so we must approximate them with a learned distribution $p_{\theta}(x^{(t-1)} | x^{(t)}) \approx q(x^{(t-1)} | x^{(t)})$. For small $\beta_t$, $q(x^{(t-1)} | x^{(t)})$ is also normal, meaning that we can learn $p_{\theta}$ by learning the distribution mean $\mu_{\theta}(x^{(t)}, t)$ and variance $\Sigma_{\theta}(x^{(t)}, t)$ with a function approximator such as a neural network.
 
-# Loss Function
+## Loss Function
 
 As the negative log likelihood $\mathbb{E}[-\text{log }p_{\theta}(x^{(0)})]$ is intractable, we train in standard fashion by optimizing the *variational lower bound*
 $$
@@ -84,11 +71,11 @@ L\_{simple} = \mathbb{E}\_{t, x_0, \epsilon} \left[ ||\epsilon - \hat{\epsilon}\
 $$
 which in practice led to more stable learning. The reweighted objective underweights the loss from the initial noising steps and overweights the loss from the later ones. Intuitively, this improves training because the initial steps add very little noise compared to the later ones and are as a result easier to learn. This is the formulation of the loss function most commonly used in practice. In either form, the DDPM can be seen as learning a sequence of denoising autoencoders.
 
-# Improvements
+## Improvements
 
 In this section, I will cover a couple of interesting improvements to the DDPM baseline that [Nichol \& Dhariwal (2021)](https://arxiv.org/pdf/2102.09672.pdf) made. DDPMs had up to that paper yielded high-quality samples in a number of domains, such as image and audio generation, but were yet to produce competitive log-likelihoods when compared to more established generative model classes such as Variational Autoencoders. This suggested that they had poor mode coverage in comparison.
 
-## Learning the Variance
+### Learning the Variance
 Note that the reweighted objective $L\_{simple}$ is constant with respect to the approximated variance, forcing it to be fixed prior to training. Ho et al. noticed that this produced high sample quality across a range of plausible variances (from $\beta_t$ to $\tilde{\beta}_t$), while learning the variance led to unstable learning. Nichol \& Dhariwal instead learned a variance interpolated in the plausible range:
 $$
 \Sigma\_{\theta}(x^{(t)}, t) = \text{exp} (v \text{ log }\beta_t + (1 - v) \text{ log } \tilde{\beta}_t )
@@ -103,7 +90,7 @@ with $\lambda = 0.0001$. Because they intended for the new $L\_{VLB}$ term to on
     \text{where } p_t \propto \sqrt{\mathbb{E} \left[ L_t^2 \right]}
 \end{align*}
 
-## Noise Schedule
+### Noise Schedule
 Nichol \& Dhariwal also noticed that the linear noise schedule used in Ho et al. seemed to corrupt the samples too quickly, as a large chunk of the transitions at the end of the Markov chain could be removed with little to no drop in sample quality. Instead they used a cosine noise schedule:
 $$
 \begin{aligned}
@@ -114,15 +101,15 @@ $$
 with $s$ a small constant added to produce sufficient noise in the early transitions.
 
 
-## Strided Ancestral Sampling
+### Strided Ancestral Sampling
 In the baseline DDPM, sampling is extremely slow, as it entails running inference through the trained network once per denoising step for each new sample. The state of the art DDPMs frequently contained thousands of denoising steps, meaning that a single sample could take minutes to generate on a GPU. Nichol \& Dhariwal propose a simple solution to this problem, which is to sample using a subsequence of the denoising steps. They reduce $T$ steps to $K$ by picking $K$ evenly spaced time steps and running the reverse diffusion process across those only. This enabled near-optimal metrics with up to $40$ times fewer denoising steps.
 
-# Conditioned Diffusion Models
+## Conditioned Diffusion Models
 A natural extension to generatively modeling a data distribution $p(x)$ is to model a conditional distribution $p(x | y)$. Some example applications of this formulation are upsampling models which output a high resolution image conditioned on a low resolution version of the same image, or image synthesizers that output an image conditioned on class information or text.
 
 A naive approach to this problem is to simply pass in the conditioning information as input to the network along with the noised samples and time step. This is common and can yield good results, but two main strategies building on this approach have been used to even greater success: classifier guidance and classifier-free guidance.
 
-## Classifier Guidance
+### Classifier Guidance
 Logically, to train with classifier guidance we need a classifier $p_{\phi}(y | x^{(t)})$ which predicts the conditioning information. Note that even if we are modeling a dataset which has highly accurate pretrained classifiers available, such as ImageNet or CIFAR-10, these will most likely be insufficient for guidance due to poor performance on \textit{noised} samples.
 
 Given such a classifier, [Dhariwal \& Nichol (2021)](https://arxiv.org/pdf/2105.05233.pdf) derive an approximate form for the conditioned reverse sampling distribution:
@@ -131,7 +118,7 @@ p\_{\theta, \phi}(x^{(t)} | x^{(t-1)}, y) \approx \mathcal{N}(x^{(t)}; \mu\_{\th
 $$
 Based on this form, the surprising result is that the conditioning only has to factor in at the sampling stage. By training an unconditioned diffusion model $\mu\_{\theta}, \Sigma\_{\theta}$ and a noisy classifier $p_{\phi}$, conditioned samples can be generated by moving the sampling mean in the direction of the classifier gradient. A scaling term $w$ has been added to govern how much classifier guidance is desired. Empirically, increasing the amount of classifier guidance trades off sample quality for sample diversity, with increasing guidance decreasing diversity.
 
-## Classifier-Free Guidance
+### Classifier-Free Guidance
 Classifier-Free Guidance ([Ho \& Salimans, 2021](https://openreview.net/pdf?id=qw8AKxfYbI)) is another method that can be used to tune the exact amount of conditioning information used in the sampling process. A problem with Classifier Guidance is that it requires the separate training of a noised sample classifier alongside the diffusion model. Instead of using a classifier, Classifier-Free Guidance uses both an unconditioned diffusion model $p\_{\theta}(x^{(t-1)} | x^{(t)}, t)$ and a conditioned diffusion model $p\_{\phi}(x^{(t-1)} | x^{(t)}, t, y)$. The exact distribution used for sampling is then
 $$
 \tilde{p}(x^{(t-1)} | x^{(t)}, t, y) = wp\_{\theta}(x^{(t-1)} | x^{(t)}, t) + (1-w)p\_{\phi}(x^{(t-1)} | x^{(t)}, t, y)
@@ -140,10 +127,10 @@ where once again $w$ is a hyperparameter that scales the exact amount of guidanc
 
 At first glance this seems to have the same problem as Classifier Guidance, as it looks like it requires training two distinct diffusion models. However this can be cleverly avoided by instead training a singular conditional diffusion model and randomly dropping out the conditioning information during training.
 
-## Comparing Classifier and Classifier-Free Guidance
+### Comparing Classifier and Classifier-Free Guidance
 In large-scale systems (eg DALL·E 2, Imagen) based on conditioned diffusion models, Classifier-Free Guidance is almost exclusively used. A head to head comparison of both conditioning methods was performed in the development of GLIDE ([Nichol et al., 2022](https://arxiv.org/pdf/2112.10741.pdf)), a text-to-image model from OpenAI. Besides the obvious advantage that Classifier-Free Guidance requires training only one model instead of two, the GLIDE authors additionally note that it empirically outperforms Classifier Guidance in photorealism and text-image alignment according to human evaluation.
 
-# References
+## References
 Dhariwal, P., \& Nichol, A. (2021). Diffusion models beat GANs on image synthesis. In arXiv [cs.LG]. http://arxiv.org/abs/2105.05233
 
 Ho, J., Jain, A., \& Abbeel, P. (2020). Denoising Diffusion Probabilistic Models. In arXiv [cs.LG]. http://arxiv.org/abs/2006.11239
