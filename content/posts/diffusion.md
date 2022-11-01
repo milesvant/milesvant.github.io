@@ -89,7 +89,7 @@ L\_{hybrid} = L\_{simple} + \lambda L\_{VLB}
 $$
 with $\lambda = 0.0001$. Because they intended for the new $L\_{VLB}$ term to only guide the choice of variance, they stopped the gradient for that term from flowing to the mean approximation $\mu\_{\theta}(x^{(t)}, t)$. They observed that $L\_{VLB}$ is quite noisy, making optimization difficult. To reduce variance, they resampled the individual terms in $L\_{VLB}$ with importance sampling:
 \begin{align*}
-    L\_{resampled} = \mathbb{E}\_{t \sim p_t} \left[ \frac{L_t}{p_t} \right] \\
+    L\_{resampled} = \mathbb{E}\_{t \sim p_t} \left[ \frac{L_t}{p_t} \right] \cr
     \text{where } p_t \propto \sqrt{\mathbb{E} \left[ L_t^2 \right]}
 \end{align*}
 
@@ -97,7 +97,7 @@ with $\lambda = 0.0001$. Because they intended for the new $L\_{VLB}$ term to on
 Nichol \& Dhariwal also noticed that the linear noise schedule used in Ho et al. seemed to corrupt the samples too quickly, as a large chunk of the transitions at the end of the Markov chain could be removed with little to no drop in sample quality. Instead they used a cosine noise schedule:
 $$
 \begin{aligned}
-    \tilde{\alpha}_t &= \frac{f(t)}{f(0)} \\
+    \tilde{\alpha}_t &= \frac{f(t)}{f(0)} \cr
     \text{where } f(t) &:= \text{cos } \left( \frac{t/T + s}{1 + s} \cdot \frac{\pi}{2} \right)
 \end{aligned}
 $$
@@ -113,7 +113,7 @@ A natural extension to generatively modeling a data distribution $p(x)$ is to mo
 A naive approach to this problem is to simply pass in the conditioning information as input to the network along with the noised samples and time step. This is common and can yield good results, but two main strategies building on this approach have been used to even greater success: classifier guidance and classifier-free guidance.
 
 ### Classifier Guidance
-Logically, to train with classifier guidance we need a classifier $p_{\phi}(y | x^{(t)})$ which predicts the conditioning information. Note that even if we are modeling a dataset which has highly accurate pretrained classifiers available, such as ImageNet or CIFAR-10, these will most likely be insufficient for guidance due to poor performance on \textit{noised} samples.
+Logically, to train with classifier guidance we need a classifier $p_{\phi}(y | x^{(t)})$ which predicts the conditioning information. Note that even if we are modeling a dataset which has highly accurate pretrained classifiers available, such as ImageNet or CIFAR-10, these will most likely be insufficient for guidance due to poor performance on *noised* samples.
 
 Given such a classifier, [Dhariwal \& Nichol (2021)](https://arxiv.org/pdf/2105.05233.pdf) derive an approximate form for the conditioned reverse sampling distribution:
 $$
