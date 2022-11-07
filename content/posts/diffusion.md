@@ -8,7 +8,7 @@ toc: true
 
 ## Introduction
 
-*Denoising Diffusion Probabilisitc Models* ("DDPMs" or just "Diffusion models") have garnered significant interest as of late due to their use in the recent slate of amazing text-to-image models such as DALL·E 2 and Stable Diffusion. In this post I will explain the basic mechanisms and math behind how these models work.
+*Denoising Diffusion Probabilistic Models* ("DDPMs" or just "Diffusion models") have garnered significant interest as of late due to their use in the recent slate of amazing text-to-image models such as DALL·E 2 and Stable Diffusion. In this post I will explain the basic mechanisms and math behind how these models work.
 
 DDPMs ([Sohl-Dickstein et al., 2015](https://arxiv.org/pdf/1503.03585.pdf)) are probabilistic generative models, meaning that they aim to learn an approximation for a target data distribution $q(x^{(0)})$. This can be done for a number of reasons, for example to draw new samples from that distribution (new images similar to training images, new text similar to training corpus), or to learn a latent variable representation of the data in an unsupervised fashion. Flexible probabilistic models meant to model a wide range of distributions are frequently intractable due to issues such as computing the *partition function* $\(\int \tilde{p}(x) dx\)$ for an unnormalized probability distribution $\tilde{p}(x)$. A common approach to circumvent these issues is to instead learn a data generation process and follow this process to draw new samples. This is the approach taken by DDPMs.
 
@@ -134,20 +134,20 @@ At first glance this seems to have the same problem as Classifier Guidance, as i
 In large-scale systems (eg DALL·E 2, Imagen) based on conditioned diffusion models, Classifier-Free Guidance is almost exclusively used. A head to head comparison of both conditioning methods was performed in the development of GLIDE ([Nichol et al., 2022](https://arxiv.org/pdf/2112.10741.pdf)), a text-to-image model from OpenAI. Besides the obvious advantage that Classifier-Free Guidance requires training only one model instead of two, the GLIDE authors additionally note that it empirically outperforms Classifier Guidance in photorealism and text-image alignment according to human evaluation.
 
 ## References
-Dhariwal, P., \& Nichol, A. (2021). Diffusion models beat GANs on image synthesis. In arXiv [cs.LG]. http://arxiv.org/abs/2105.05233
+[1] Dhariwal, P., \& Nichol, A. (2021). Diffusion models beat GANs on image synthesis. In arXiv [cs.LG]. http://arxiv.org/abs/2105.05233
 
-Ho, J., Jain, A., \& Abbeel, P. (2020). Denoising Diffusion Probabilistic Models. In arXiv [cs.LG]. http://arxiv.org/abs/2006.11239
+[2] Ho, J., Jain, A., \& Abbeel, P. (2020). Denoising Diffusion Probabilistic Models. In arXiv [cs.LG]. http://arxiv.org/abs/2006.11239
 
-Ho, J., \& Salimans, T. (2022). Classifier-Free Diffusion Guidance. In arXiv [cs.LG]. http://arxiv.org/abs/2207.12598
+[3] Ho, J., \& Salimans, T. (2022). Classifier-Free Diffusion Guidance. In arXiv [cs.LG]. http://arxiv.org/abs/2207.12598
 
-Luo, C. (2022). Understanding diffusion models: A unified perspective. In arXiv [cs.LG]. http://arxiv.org/abs/2208.11970
+[4] Luo, C. (2022). Understanding diffusion models: A unified perspective. In arXiv [cs.LG]. http://arxiv.org/abs/2208.11970
 
-Nichol, A., \& Dhariwal, P. (2021). Improved denoising diffusion probabilistic models. In arXiv [cs.LG]. http://arxiv.org/abs/2102.09672
+[5] Nichol, A., \& Dhariwal, P. (2021). Improved denoising diffusion probabilistic models. In arXiv [cs.LG]. http://arxiv.org/abs/2102.09672
 
-Nichol, A., Dhariwal, P., Ramesh, A., Shyam, P., Mishkin, P., McGrew, B., Sutskever, I., \& Chen, M. (2021). GLIDE: Towards photorealistic image generation and editing with text-guided diffusion models. In arXiv [cs.CV]. http://arxiv.org/abs/2112.10741
+[6] Nichol, A., Dhariwal, P., Ramesh, A., Shyam, P., Mishkin, P., McGrew, B., Sutskever, I., \& Chen, M. (2021). GLIDE: Towards photorealistic image generation and editing with text-guided diffusion models. In arXiv [cs.CV]. http://arxiv.org/abs/2112.10741
 
-Ramesh, A., Dhariwal, P., Nichol, A., Chu, C., \& Chen, M. (2022). Hierarchical text-conditional image generation with CLIP latents. In arXiv [cs.CV]. http://arxiv.org/abs/2204.06125
+[7] Ramesh, A., Dhariwal, P., Nichol, A., Chu, C., \& Chen, M. (2022). Hierarchical text-conditional image generation with CLIP latents. In arXiv [cs.CV]. http://arxiv.org/abs/2204.06125
 
-Saharia, C., Chan, W., Saxena, S., Li, L., Whang, J., Denton, E., Ghasemipour, S. K. S., Ayan, B. K., Mahdavi, S. S., Lopes, R. G., Salimans, T., Ho, J., Fleet, D. J., \& Norouzi, M. (2022). Photorealistic text-to-image diffusion models with deep language understanding. In arXiv [cs.CV]. http://arxiv.org/abs/2205.11487
+[8] Saharia, C., Chan, W., Saxena, S., Li, L., Whang, J., Denton, E., Ghasemipour, S. K. S., Ayan, B. K., Mahdavi, S. S., Lopes, R. G., Salimans, T., Ho, J., Fleet, D. J., \& Norouzi, M. (2022). Photorealistic text-to-image diffusion models with deep language understanding. In arXiv [cs.CV]. http://arxiv.org/abs/2205.11487
 
-Sohl-Dickstein, J., Weiss, E. A., Maheswaranathan, N., \& Ganguli, S. (2015). Deep Unsupervised Learning using Nonequilibrium Thermodynamics. In arXiv [cs.LG]. http://arxiv.org/abs/1503.03585
+[9] Sohl-Dickstein, J., Weiss, E. A., Maheswaranathan, N., \& Ganguli, S. (2015). Deep Unsupervised Learning using Nonequilibrium Thermodynamics. In arXiv [cs.LG]. http://arxiv.org/abs/1503.03585
